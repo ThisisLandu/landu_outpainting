@@ -6,6 +6,7 @@ BMAB와 다르게 아웃패딩된 부분'만' 마스킹하지않고 이미지 �
 
 
 Controlnet name: **open pose로 설정**
+1
 pose strength : control net strength
 pad_mode: outpainting mode (확대시 사용X)
 mode_type : 위치설정
