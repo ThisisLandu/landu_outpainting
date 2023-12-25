@@ -21,7 +21,7 @@ class Pad_Image:
                 "conditioning": ("CONDITIONING",),
                 "vae": ("VAE",),
                 "control_net_name": (folder_paths.get_filename_list("controlnet"),),
-                "pose strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01, "round": 0.001, "dispaly": "slider"}),
+                "pose_strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01, "round": 0.001, "dispaly": "slider"}),
                 "pad_mode": (["constant", "replicate", "noise"],),
                 "mode_type": (
                     [
@@ -59,7 +59,7 @@ class Pad_Image:
 
     CATEGORY = "Landu"
 
-    def run(self, image, vae, conditioning, control_net_name, strength, mode_type, Ratio_min, Ratio_max, pad_mode):  # image= 1,768,512,3
+    def run(self, image, vae, conditioning, control_net_name, pose_strength, mode_type, Ratio_min, Ratio_max, pad_mode):  # image= 1,768,512,3
         if Ratio_min > Ratio_max:
             Ratio_min, Ratio_max = Ratio_max, Ratio_min
         obj = nodes.NODE_CLASS_MAPPINGS["DWPreprocessor"]()
@@ -161,7 +161,7 @@ class Pad_Image:
 
         latent = nodes.VAEEncode().encode(vae, final_image)[0]
         ctrl_net_load = nodes.ControlNetLoader().load_controlnet(control_net_name)[0]
-        conditioning = nodes.ControlNetApply().apply_controlnet(conditioning, ctrl_net_load, final_pose_image, strength)[0]
+        conditioning = nodes.ControlNetApply().apply_controlnet(conditioning, ctrl_net_load, final_pose_image, pose_strength)[0]
         return (
             final_image,
             final_pose_image,
