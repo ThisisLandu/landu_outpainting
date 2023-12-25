@@ -1,1 +1,1 @@
-from .example_node import *
+from .outpainting_node import *
