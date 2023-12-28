@@ -298,36 +298,41 @@ class Pad_Image_v2:
                 final_image = torch.cat((final_image, padded_image))
                 final_pose_image = torch.cat((final_pose_image, padded_pose_image))
 
-        ##############################
 
         latent = nodes.VAEEncode().encode(vae, final_image)[0]
+        ##############################
 
         same_count = 1
         positives = []
 
-        print('☆★'*20)
-        print('☆★'*20)
-        for i, positive in enumerate(kwargs["conditionings"]):
-            if i < len(kwargs["conditionings"]) - 1:
-                if np.array_equal(
-                    positive[0][0].cpu().detach().numpy(), kwargs["conditionings"][i + 1][0][0].cpu().detach().numpy()
-                ) and np.array_equal(
-                    positive[0][1]["pooled_output"].cpu().detach().numpy(),
-                    kwargs["conditionings"][i + 1][0][1]["pooled_output"].cpu().detach().numpy(),
-                ):  # 현재거랑 다음거랑 같으면
-                    same_count += 1
-                    continue
-            ctrl_net_load = nodes.ControlNetLoader().load_controlnet(control_net_name)[0]
-            positive = nodes.ControlNetApply().apply_controlnet(positive, ctrl_net_load, final_pose_image[i, i + same_count], pose_strength)[0]
-            print(i)
-            print(positive[0][1]['control'])
+        # opt1
+        # print('☆★'*20)
+        # print('☆★'*20)
+        # for i, positive in enumerate(kwargs["conditionings"]):
+        #     if i < len(kwargs["conditionings"]) - 1:
+        #         if np.array_equal(
+        #             positive[0][0].cpu().detach().numpy(), kwargs["conditionings"][i + 1][0][0].cpu().detach().numpy()
+        #         ) and np.array_equal(
+        #             positive[0][1]["pooled_output"].cpu().detach().numpy(),
+        #             kwargs["conditionings"][i + 1][0][1]["pooled_output"].cpu().detach().numpy(),
+        #         ):  # 현재거랑 다음거랑 같으면
+        #             same_count += 1
+        #             continue
+        #     ctrl_net_load = nodes.ControlNetLoader().load_controlnet(control_net_name)[0]
+        #     positive = nodes.ControlNetApply().apply_controlnet(positive, ctrl_net_load, final_pose_image[i, i + same_count], pose_strength)[0]
+        #     print(i)
+        #     print(positive[0][1]['control'])
 
-            for ii in range(same_count):
-                positives.append(positive)
-            same_count = 1
-        print('☆★'*20)
-        print('☆★'*20)
+        #     for ii in range(same_count):
+        #         positives.append(positive)
+        #     same_count = 1
+        # print('☆★'*20)
+        # print('☆★'*20)
 
+        #opt2
+        ctrl_net_load = nodes.ControlNetLoader().load_controlnet(control_net_name)[0]
+        positives = nodes.ControlNetApply().apply_controlnet(kwargs["conditionings"][0], ctrl_net_load, final_pose_image, pose_strength)[0]
+        positives=[positives]
 
         # print(len(positives))
         # print(len(positives[0]))
@@ -351,7 +356,7 @@ class Landu_ToBasicPipe:
                 "model": ("MODEL",),
                 "clip": ("CLIP",),
                 "vae": ("VAE",),
-                "positive": ("CONDITIONINGS",),
+                "positives": ("CONDITIONINGS",),
                 "negative": ("CONDITIONING",),
             },
         }
