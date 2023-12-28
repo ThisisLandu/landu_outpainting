@@ -161,7 +161,6 @@ class Pad_Image:
 
         latent = nodes.VAEEncode().encode(vae, final_image)[0]
         ctrl_net_load = nodes.ControlNetLoader().load_controlnet(control_net_name)[0]
-
         conditioning1 = nodes.ControlNetApply().apply_controlnet(conditioning, ctrl_net_load, final_pose_image, pose_strength)[0]
         return (
             final_image,
