@@ -1,7 +1,9 @@
 import math, cv2, random, torch, torchvision
 import numpy as np
-import nodes, folder_paths
+import nodes, folder_paths  # 기본노드, 파일로드
 
+# padding1 conditioning 
+# padding2 conditioning's'  (와카 여러개 된것 (프롬프트 여러개))
 
 def normalize_size_base_64(w, h):
     short_side = min(w, h)
@@ -102,8 +104,6 @@ class Pad_Image:
                     padded_pose_image = torch.zeros_like(pose_image[i].permute(2, 0, 1))
 
                     if pad_mode == "noise":
-                        print(padded_image.shape, resized_image.shape)
-                        print(mode_list[mode_type][2], padded_image.shape[1] - mode_list[mode_type][3])
                         padded_image[
                             :,
                             mode_list[mode_type][2] : mode_list[mode_type][2] + resized_image.shape[1],
@@ -161,18 +161,11 @@ class Pad_Image:
 
         latent = nodes.VAEEncode().encode(vae, final_image)[0]
         ctrl_net_load = nodes.ControlNetLoader().load_controlnet(control_net_name)[0]
-        conditioning = nodes.ControlNetApply().apply_controlnet(conditioning, ctrl_net_load, final_pose_image, pose_strength)[0]
+
+        conditioning1 = nodes.ControlNetApply().apply_controlnet(conditioning, ctrl_net_load, final_pose_image, pose_strength)[0]
         return (
             final_image,
             final_pose_image,
-            conditioning,
+            conditioning1,
             latent,
         )
-
-
-# A dictionary that contains all nodes you want to export with their names
-# NOTE: names should be globally unique
-NODE_CLASS_MAPPINGS = {"Landu_Padding Image": Pad_Image}
-
-# A dictionary that contains the friendly/humanly readable titles for the nodes
-NODE_DISPLAY_NAME_MAPPINGS = {"Landu_Padding Image": "Landu_Padding Image"}
