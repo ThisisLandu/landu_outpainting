@@ -41,6 +41,7 @@ class Pad_Image:
                 ),
                 "Ratio_min": ("FLOAT", {"default": 0.5, "min": 0.3, "max": 2.5, "step": 0.1, "round": 0.01, "dispaly": "slider"}),
                 "Ratio_max": ("FLOAT", {"default": 1.5, "min": 0.3, "max": 2.5, "step": 0.1, "round": 0.01, "dispaly": "slider"}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
             },
         }
 
@@ -61,7 +62,7 @@ class Pad_Image:
 
     CATEGORY = "Landu"
 
-    def run(self, image, vae, conditioning, control_net_name, pose_strength, mode_type, Ratio_min, Ratio_max, pad_mode):  # image= 1,768,512,3
+    def run(self, image, vae, conditioning, control_net_name, pose_strength, mode_type, Ratio_min, Ratio_max, pad_mode,seed):  # image= 1,768,512,3
         if Ratio_min > Ratio_max:
             Ratio_min, Ratio_max = Ratio_max, Ratio_min
         obj = nodes.NODE_CLASS_MAPPINGS["DWPreprocessor"]()
@@ -71,6 +72,8 @@ class Pad_Image:
         )["result"][0]
 
         # Resize_by = random.uniform(Ratio_min, Ratio_max)
+        np.random.seed(seed)
+        random.seed(seed)
         Resize_bys = np.random.uniform(Ratio_min, Ratio_max, image.shape[0]).round(2)
         for i, Resize_by in enumerate(Resize_bys):
             if Resize_by > 0.9999 and Resize_by < 1.0001:
